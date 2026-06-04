@@ -76,9 +76,9 @@ Output `transactions[]` maps 1:1 to Base MCP `send_calls` with `chain: "base"`.
 
 ```bash
 # Tier A
-npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -a cursor
-npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -a claude-code
-npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -a codex
+npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -g -a cursor -y
+npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -g -a claude-code -y
+npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -g -a codex -y
 
 # Tier B: upload apebond-base-skill.zip in ChatGPT or Claude Skills (see PUBLISHING.md)
 ```

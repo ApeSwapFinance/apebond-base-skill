@@ -12,7 +12,7 @@ Before any bond action, identify the user's **capability tier** (below). Do not 
 
 | Tier | Hosts | Base MCP | Skill install | Shell / CLI in chat | Full buy in chat |
 |------|-------|----------|---------------|---------------------|------------------|
-| **A — Full** | Cursor, Claude Code, Codex | Yes | `npx skills add … -a <host>` | Yes | prepare-buy → send_calls → approve → track-widget → positions |
+| **A — Full** | Cursor, Claude Code, Codex | Yes | `npx skills add … -g -a <host>` | Yes | prepare-buy → send_calls → approve → track-widget → positions |
 | **B — MCP + chat** | ChatGPT, Claude (web / Desktop / mobile) | Yes (connector) | Skill zip upload or URL prompt | No | Degraded — [Tier B playbook](#tier-b-playbook-chatgpt--claude-web) |
 | **C** | Hermes | Yes | `hermes skills install github:…/apebond-base` | Varies | Follow harness (usually Tier A or B rules) |
 
@@ -41,11 +41,20 @@ The harness may label the server `user-base-mcp`; tool names are still `get_wall
 **Skill:**
 
 ```bash
-npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -a cursor
+# -g = global (all projects). Do not run from inside this repo's cli/ without -g.
+npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -g -a cursor -y
 cd ~/.cursor/skills/apebond-base/cli && npm install && npm run build
 ```
 
-Default skill dir: `~/.cursor/skills/apebond-base/`
+Default skill dir: `~/.cursor/skills/apebond-base/` (global). Verify: `npx skills ls -g`
+
+**If you accidentally installed as a project skill** (`cli/.agents/skills/…`):
+
+```bash
+cd ~/GitHub/apebond-base-skill/cli   # or wherever `skills list` shows Project Skills
+npx skills remove apebond-base -y
+npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -g -a cursor -y
+```
 
 ### Claude Code
 
@@ -63,7 +72,7 @@ In session: `/mcp` shows server status.
 **Skill:**
 
 ```bash
-npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -a claude-code
+npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -g -a claude-code -y
 cd ~/.claude/skills/apebond-base/cli && npm install && npm run build
 ```
 
@@ -87,7 +96,7 @@ url = "https://mcp.base.org/"
 **Skill:**
 
 ```bash
-npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -a codex
+npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -g -a codex -y
 cd ~/.codex/skills/apebond-base/cli && npm install && npm run build
 ```
 

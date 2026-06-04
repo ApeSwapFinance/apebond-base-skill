@@ -23,9 +23,9 @@ node dist/cli.js list-bonds
 **Tier A** (full in-agent CLI):
 
 ```bash
-npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -a cursor
-npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -a claude-code
-npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -a codex
+npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -g -a cursor -y
+npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -g -a claude-code -y
+npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -g -a codex -y
 ```
 
 Then: `cd <skill-dir>/cli && npm install && npm run build` (see [host-setup.md](references/host-setup.md) for default dirs).

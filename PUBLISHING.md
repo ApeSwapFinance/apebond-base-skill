@@ -10,8 +10,8 @@ Public repo: **https://github.com/ApeSwapFinance/apebond-base-skill**
 4. **Install (Tier A)** — from any machine:
 
    ```bash
-   npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -a cursor -y
-   npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -a claude-code -y
+   npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -g -a cursor -y
+   npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -g -a claude-code -y
    ```
 
    List skills in the repo without installing:
@@ -55,9 +55,16 @@ Also connect Base MCP per [references/host-setup.md](references/host-setup.md).
 After pushing to GitHub:
 
 ```bash
-npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -a cursor
-npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -a claude-code
-npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -a codex
+# -g installs to ~/.cursor/skills (etc.), not cli/.agents/ in this repo
+npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -g -a cursor -y
+npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -g -a claude-code -y
+npx skills add ApeSwapFinance/apebond-base-skill --skill apebond-base -g -a codex -y
+```
+
+**Update after a push to GitHub:**
+
+```bash
+npx skills update apebond-base -g -y
 ```
 
 ## End-user checklist
