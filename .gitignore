@@ -1,6 +1,8 @@
 node_modules/
 cli/.agents/
 .agents/
+skills-lock.json
+**/skills-lock.json
 *.log
 .DS_Store
 .env
