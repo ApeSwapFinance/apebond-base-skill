@@ -13,6 +13,8 @@ export interface RealtimeBond {
     contractAddress?: Record<number, string>;
     billAddress?: string;
     billVersion?: string;
+    /** When true, bond is omitted from discovery (list-bonds / prepare-buy). */
+    hide?: boolean;
     soldOut?: boolean;
     trueBillPrice?: string;
     trueBondPrices?: Array<{

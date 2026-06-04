@@ -8,7 +8,7 @@ GET https://realtime-api.ape.bond/bonds?chainId=8453&bond=<bondContract>
 GET https://realtime-api.ape.bond/utils/bonds
 ```
 
-- **`/bonds`:** live / active bond economics for buying (`trueBillPrice`, `soldOut`, vesting, tiers).
+- **`/bonds`:** live / active bond economics for buying (`trueBillPrice`, `soldOut`, vesting, tiers). Bonds with `hide: true` are excluded by the CLI and should be ignored when agents parse this response.
 - **`/utils/bonds`:** full catalog (SDK bonds list). CLI uses this only to attach `earnToken` symbols to **positions**; discovery is on-chain via Base Bill NFT `0xD8C7fe06E24A2862d78D0F1BF040bA79463d9351` (`allTokensDataOfOwner` + per-bond `claimablePayout`).
 
 **Fallback:** If Base MCP `web_request` rejects this host, use the harness shell (Tier A) or ask the user to run locally (Tier B):

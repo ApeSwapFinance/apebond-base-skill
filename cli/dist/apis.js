@@ -15,7 +15,7 @@ export async function fetchBaseBonds(bondAddress) {
     if (!res.ok)
         throw new Error(`realtime-api /bonds failed: ${res.status} ${await res.text()}`);
     const data = (await res.json());
-    return data.bonds ?? [];
+    return (data.bonds ?? []).filter((b) => b.hide !== true);
 }
 export async function fetchTierProofSignature(user, bond) {
     const res = await fetch(`${API_V2}/tier-signature`, {

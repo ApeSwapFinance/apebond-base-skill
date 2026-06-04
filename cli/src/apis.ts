@@ -23,7 +23,7 @@ export async function fetchBaseBonds(bondAddress?: string): Promise<RealtimeBond
   const res = await fetch(`${REALTIME_API}/bonds?${params}`)
   if (!res.ok) throw new Error(`realtime-api /bonds failed: ${res.status} ${await res.text()}`)
   const data = (await res.json()) as BondsListResponse
-  return data.bonds ?? []
+  return (data.bonds ?? []).filter((b) => b.hide !== true)
 }
 
 export async function fetchTierProofSignature(user: string, bond: string): Promise<string> {
