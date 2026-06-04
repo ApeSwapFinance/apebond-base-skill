@@ -22,8 +22,10 @@ Steps:
    (--with-tiers for V4 bonds).
 3. Map transactions[] to send_calls with chain "base" (one batch).
 4. Show me the Approve in Base Account link and wait until I reply "approved".
-5. get_request_status, then track-widget (referenceId base-mcp) and positions.
-6. Do not say the purchase succeeded until track-widget and positions are done.
+5. get_request_status must return txHash (signed/completed); only then track-widget
+   (referenceId base-mcp) with full network if sandbox blocks api.ape.bond, then positions.
+6. Do not run track-widget or widget curl before step 5. Do not say the purchase
+   succeeded until track-widget and positions are done.
 ```
 
 Claim example:

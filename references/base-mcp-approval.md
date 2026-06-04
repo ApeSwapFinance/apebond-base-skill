@@ -16,6 +16,16 @@ Today Base MCP uses **approval mode only**: every write returns an `approvalUrl`
 4. Store `requestId` in your reply so the session can resume.
 5. **Do not** report success until post-approval steps below are done (for purchases).
 
+### Forbidden before approval (purchases)
+
+Until `get_request_status` returns `signed` or `completed` **with** `txHash`, do **not** run:
+
+- `track-widget` or `finish-purchase` (CLI)
+- [cli/scripts/track-widget.sh](../cli/scripts/track-widget.sh) or any widget `curl`
+- Base MCP `web_request` POST to `https://api.ape.bond/bills/widget`
+
+Saying **approved** is not enough — you must read `txHash` from `get_request_status` first. See [widget-tracking.md](widget-tracking.md).
+
 ### Tier A harness (Cursor, Claude Code, Codex)
 
 When a shell is available, **also** open the link automatically (print the link anyway as fallback):
@@ -71,11 +81,14 @@ After a confirmed **purchase** (`deposit` or zap):
 
 ### Tier A (shell + CLI)
 
-1. `node <skill-root>/cli/dist/cli.js track-widget --hash <txHash> --bond <bondContract>`
+**Only after** `get_request_status` returns `txHash` (not while status is `pending`):
+
+1. `node <skill-root>/cli/dist/cli.js track-widget --hash <txHash> --bond <bondContract>`  
+   On sandbox DNS/tunnel errors (Cursor): retry with shell `required_permissions: ["full_network"]` or use [cli/scripts/track-widget.sh](../cli/scripts/track-widget.sh) the same way.
 2. `node <skill-root>/cli/dist/cli.js positions <wallet>`
 3. Or combined: `finish-purchase --hash … --bond … --wallet …`
 
-See [widget-tracking.md](widget-tracking.md). Retry `track-widget` once on failure; purchase may still be on-chain.
+See [widget-tracking.md](widget-tracking.md). Retry widget POST once on failure; purchase may still be on-chain.
 
 ### Tier B (chat-only)
 

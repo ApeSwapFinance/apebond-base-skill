@@ -48,6 +48,17 @@ cd ~/.cursor/skills/apebond-base/cli && npm install && npm run build
 
 Default skill dir: `~/.cursor/skills/apebond-base/` (global). Verify: `npx skills ls -g`
 
+### Cursor / Tier A — sandbox and widget POST
+
+`prepare-buy`, `track-widget`, and [cli/scripts/track-widget.sh](../cli/scripts/track-widget.sh) call `realtime-api.ape.bond` and `api.ape.bond`. Cursor’s default shell sandbox may block those hosts.
+
+| Phase | Network in sandbox | Agent action |
+|-------|-------------------|--------------|
+| `prepare-buy` / `list-bonds` | Often blocked | Use `required_permissions: ["full_network"]` or Base MCP `chain_rpc_request` where applicable |
+| **Widget POST** | Almost always blocked | Run **only after** user **approved** + `get_request_status` → `txHash`; then `track-widget` or `track-widget.sh` with `full_network` / `all` |
+
+Never POST `/bills/widget` between `send_calls` and confirmed `txHash`. See [widget-tracking.md](widget-tracking.md).
+
 **If you accidentally installed as a project skill** (`cli/.agents/skills/…`):
 
 ```bash
@@ -129,7 +140,7 @@ Default skill dir: `~/.codex/skills/apebond-base/`
 | Approve | Show **Approve in Base Account** link only | User clicks link |
 | Wait | User replies **approved** | — |
 | Status | `get_request_status(requestId)` | — |
-| track-widget | POST usually blocked on `web_request` | `track-widget` or `curl` (see [widget-tracking.md](widget-tracking.md)) |
+| track-widget | POST blocked on `web_request`; shell needs full network | After `txHash`: `track-widget` or [cli/scripts/track-widget.sh](../cli/scripts/track-widget.sh) (see [widget-tracking.md](widget-tracking.md)) |
 | positions | Ask user to paste or run locally | `positions <wallet>` |
 
 Tier B still supports **wallet + send_calls + approval + status**; be explicit when handing off to local CLI.

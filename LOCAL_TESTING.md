@@ -83,4 +83,4 @@ node cli/dist/cli.js finish-purchase \
 | Flow stops after send_calls | Follow [base-mcp-approval.md](references/base-mcp-approval.md); user must reply **approved** |
 | `deposit` reverts | Check USDC balance, `--amount` units, `minTier` |
 | `tier-signature` fails | Wallet / API tier requirements on production |
-| Widget POST fails | Retry `track-widget`; purchase may still be on-chain |
+| Widget POST fails (ENOTFOUND / 403) | Only after approved + `get_request_status` → `txHash`; retry `track-widget` or `cli/scripts/track-widget.sh` with full network (not in sandbox) |

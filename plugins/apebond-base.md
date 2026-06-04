@@ -99,8 +99,10 @@ Full rules: [references/widget-tracking.md](../references/widget-tracking.md).
 5. Post-send_calls — see references/base-mcp-approval.md:
    - Show Approve in Base Account link (+ open URL in shell harness)
    - Ask user to reply approved
+   - Do NOT track-widget / widget curl / finish-purchase yet
 6. get_request_status(requestId) → txHash (completed / signed)
-7. CLI: track-widget --hash <tx> --bond <bond>   # MANDATORY
+   - If pending or no txHash: STOP — do not widget POST
+7. CLI: track-widget --hash <tx> --bond <bond>   # MANDATORY (after step 6 only; full network if sandbox blocks POST)
 8. CLI: positions <wallet>
 9. Confirm success (tx hash + widget recorded + position summary)
 ```

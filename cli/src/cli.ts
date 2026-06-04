@@ -18,6 +18,23 @@ function printJson(data: unknown) {
   console.log(JSON.stringify(data, null, 2))
 }
 
+const TX_HASH_RE = /^0x[0-9a-fA-F]{64}$/
+const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/
+
+function assertTxHash(hash: string): void {
+  if (!TX_HASH_RE.test(hash)) {
+    throw new Error(
+      `Invalid --hash: expected 0x-prefixed 32-byte hex (64 chars). Got: ${hash}. Use txHash from get_request_status, not requestId.`,
+    )
+  }
+}
+
+function assertBondAddress(addr: string): void {
+  if (!ADDRESS_RE.test(addr)) {
+    throw new Error(`Invalid --bond: expected 0x-prefixed 20-byte hex (40 chars). Got: ${addr}`)
+  }
+}
+
 program
   .command('list-bonds')
   .description('List active bonds on Base from realtime-api')
@@ -104,6 +121,8 @@ program
   .requiredOption('--bond <address>', 'Bond contract address')
   .option('--reason <reason>', 'Optional reason string')
   .action(async (opts) => {
+    assertTxHash(opts.hash)
+    assertBondAddress(opts.bond)
     await trackWidgetTransaction({
       transactionHash: opts.hash,
       billContract: opts.bond,
@@ -120,6 +139,8 @@ program
   .requiredOption('--wallet <address>', 'Buyer wallet for positions lookup')
   .option('--reason <reason>', 'Optional reason passed to widget POST')
   .action(async (opts) => {
+    assertTxHash(opts.hash)
+    assertBondAddress(opts.bond)
     await trackWidgetTransaction({
       transactionHash: opts.hash,
       billContract: opts.bond,
