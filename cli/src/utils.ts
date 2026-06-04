@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js'
+import { API_V2, BASE_BILL_NFT, CHAIN_ID_BASE } from './constants.js'
 
 export function adjustDecimals(numStr: string): string {
   const parts = numStr.split('.')
@@ -43,4 +44,9 @@ export function getBondContract(bond: { contractAddress?: Record<number, string>
 
 export function normalizeAddress(addr: string): `0x${string}` {
   return addr.toLowerCase() as `0x${string}`
+}
+
+/** api.ape.bond redirects (302) to the bond NFT image (IPFS/CDN). */
+export function billImageRedirectUrl(billId: string | number): string {
+  return `${API_V2}/bills/single/${CHAIN_ID_BASE}/${BASE_BILL_NFT}/${billId}/image`
 }

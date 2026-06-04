@@ -29,9 +29,10 @@ Steps:
 Claim example:
 
 ```text
-Show my ApeBond positions on Base for my Base Account wallet, then prepare
-and execute a claim for bill id <ID> on bond <BOND>. Use send_calls and
-the approval flow; no track-widget.
+Show my ApeBond positions on Base for my Base Account wallet (render each
+bond image from imageUrl in the CLI output), then prepare and execute a claim
+for bill id <ID> on bond <BOND>. Use send_calls and the approval flow; no
+track-widget.
 ```
 
 ---
@@ -64,8 +65,8 @@ After that:
 
 ```text
 List active ApeBond bonds on Base and summarize payout token, principal,
-and soldOut status. Then show my bond positions for my Base Account wallet.
-No transactions.
+and soldOut status. Then show my bond positions for my Base Account wallet
+with bond images from each position's imageUrl. No transactions.
 ```
 
 On Tier B, the agent may ask you to paste `list-bonds` CLI output if `web_request` to realtime-api is blocked. `positions` only needs Base RPC (on-chain Bill NFT); optional `/utils/bonds` is for token symbols only.

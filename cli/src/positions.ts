@@ -3,6 +3,7 @@ import { base } from 'viem/chains'
 import bondNftAbi from '../abi/bondNft.json' with { type: 'json' }
 import { fetchBondsCatalog } from './apis.js'
 import { BASE_BILL_NFT, BASE_RPC, CHAIN_ID_BASE } from './constants.js'
+import { billImageRedirectUrl } from './utils.js'
 
 const bondReadAbi = [
   {
@@ -19,6 +20,7 @@ export interface PositionRow {
   bondContract: string
   earnToken?: string
   billId: string
+  imageUrl: string
   claimablePayout: string
 }
 
@@ -68,6 +70,7 @@ export async function fetchPositions(owner: string): Promise<PositionRow[]> {
         bondContract: billAddress,
         earnToken: earnByBond.get(billAddress.toLowerCase()),
         billId: tokenId.toString(),
+        imageUrl: billImageRedirectUrl(tokenId.toString()),
         claimablePayout: claimable.toString(),
       }
     }),

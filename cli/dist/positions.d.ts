@@ -3,6 +3,7 @@ export interface PositionRow {
     bondContract: string;
     earnToken?: string;
     billId: string;
+    imageUrl: string;
     claimablePayout: string;
 }
 /**

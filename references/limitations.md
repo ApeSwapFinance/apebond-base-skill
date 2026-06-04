@@ -33,6 +33,10 @@ For a smoother experience on Tier B, use **Cursor**, **Claude Code**, or **Codex
 
 There is no setting to spend the full wallet without per-transaction approval. Every `send_calls` returns an approval link. See [base-mcp-approval.md](base-mcp-approval.md).
 
+## Position bond images
+
+`imageUrl` in `positions` output points at `GET api.ape.bond/bills/single/.../image` (302 to IPFS/CDN). Very new bills may return **404** until metadata/image is generated — show `billId`, earn token, and claimable text even if the image does not load.
+
 ## Scope
 
 - **Base mainnet only** (8453) in v1.

@@ -13,3 +13,5 @@ export declare function getBondContract(bond: {
     billAddress?: string;
 }, chainId: number): string;
 export declare function normalizeAddress(addr: string): `0x${string}`;
+/** api.ape.bond redirects (302) to the bond NFT image (IPFS/CDN). */
+export declare function billImageRedirectUrl(billId: string | number): string;

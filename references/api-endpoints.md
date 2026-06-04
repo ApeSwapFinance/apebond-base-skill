@@ -28,6 +28,18 @@ Or `curl` the URL and paste JSON into chat. See [host-setup.md](host-setup.md).
 
 Base URL: `https://api.ape.bond`
 
+### Bill NFT image (positions display)
+
+```
+GET https://api.ape.bond/bills/single/:chainId/:contract/:billId/image
+```
+
+- **`:chainId`:** `8453` on Base.
+- **`:contract`:** Base Bill NFT `0xD8C7fe06E24A2862d78D0F1BF040bA79463d9351`.
+- **`:billId`:** Bill NFT `tokenId` (same as `billId` in `positions` CLI output).
+
+Responds with **302** to the bond art URL (IPFS/CDN) when metadata exists; **404** if no image yet. The CLI adds a deterministic `imageUrl` per position (no fetch required). Agents should render markdown images from `imageUrl` when summarizing holdings.
+
 ## Soul Zap (zap buy)
 
 ```

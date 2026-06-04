@@ -9,6 +9,6 @@
 | Widget `referenceId` | `base-mcp` |
 | Base Bill NFT (V3) | `0xD8C7fe06E24A2862d78D0F1BF040bA79463d9351` |
 
-**Positions:** `positions <wallet>` reads `allTokensDataOfOwner` on the Bill NFT, then `claimablePayout(billId)` on each bond contract — same discovery model as SDK Your Bonds (EVM), not `GET /bonds` (active bonds only).
+**Positions:** `positions <wallet>` reads `allTokensDataOfOwner` on the Bill NFT, then `claimablePayout(billId)` on each bond contract — same discovery model as SDK Your Bonds (EVM), not `GET /bonds` (active bonds only). Each row includes `imageUrl` (api.ape.bond `/bills/single/.../image` redirect) for bond art in chat.
 
 Map every prepared transaction `chainId: 8453` to `send_calls({ chain: "base", calls: [...] })`.

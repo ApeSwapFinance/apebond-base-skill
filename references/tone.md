@@ -8,3 +8,4 @@
 - On Tier B (ChatGPT, Claude web), show the link only — no shell `open` command.
 - Do not claim the bond was purchased until `track-widget` (and ideally `positions`) complete — or Tier B user confirms local widget run.
 - If a host cannot POST to `api.ape.bond`, say so clearly and use the CLI `track-widget` command or `curl` — do not pretend the flow is complete.
+- When listing positions, show each bond with a markdown image from `imageUrl` (e.g. `![Bill #<billId>](<imageUrl>)`) plus earn token, claimable payout, and bond contract. If the image fails to load (very new bill), still show the text fields.
