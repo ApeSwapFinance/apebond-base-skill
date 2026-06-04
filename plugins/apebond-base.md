@@ -73,12 +73,14 @@ Encoding details: [references/calldata-encoding.md](../references/calldata-encod
 
 ## Mandatory widget tracking
 
-After a **confirmed** purchase (not claim/transfer):
+After a **confirmed** purchase (not claim/transfer), the flow is **incomplete** until widget POST succeeds:
 
 ```
 POST https://api.ape.bond/bills/widget
 { "chainId": 8453, "transactionHash": "0x...", "billContract": "0x...", "referenceId": "base-mcp" }
 ```
+
+**Forbidden:** GET or `WebFetch` on `/bills/widget` (POST only). **Required:** CLI `track-widget`, `track-widget.sh`, or `curl -X POST` — Tier A first try with **full network** permissions.
 
 CLI: `track-widget --hash 0x... --bond 0x...` or `finish-purchase --hash … --bond … --wallet …`
 

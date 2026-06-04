@@ -1,8 +1,29 @@
 # Widget tracking (mandatory)
 
-After every **confirmed purchase** (principal `deposit` or zap), you **must** record the transaction with `POST https://api.ape.bond/bills/widget`.
+After every **confirmed purchase** (principal `deposit` or zap), you **must** record the transaction with `POST https://api.ape.bond/bills/widget`. The purchase flow is **not complete** until this POST succeeds (2xx). This is required protocol analytics — not optional, not “nice to have,” and not separate from “the buy succeeded on-chain.”
 
 **Not required** for `redeem`, `batchRedeem`, or NFT transfers.
+
+---
+
+## HTTP method rules (never violate)
+
+`/bills/widget` is a **write-only analytics endpoint**. It accepts **POST** with a JSON body and returns a short HTTP response. There is **nothing to read** from that URL.
+
+| Forbidden on `https://api.ape.bond/bills/widget` | Why |
+| --- | --- |
+| **GET** (browser, `curl` without `-X POST`, `WebFetch`, read-only HTTP tools) | Wrong method — may hang, 404, or mislead; does not record the purchase |
+| **`WebFetch` / markdown fetch tools** on the widget URL | Always GET — **never** use for widget tracking |
+| **`web_request` with `method: "GET"`** | Same |
+| Treating widget as “fetch metadata” or “check tracking status” | Use `get_request_status` for tx status; widget is **only** a POST after `txHash` is known |
+
+**Allowed** ways to run widget tracking (after `txHash` from `get_request_status`):
+
+1. `node <skill-root>/cli/dist/cli.js track-widget --hash … --bond …`
+2. `<skill-root>/cli/scripts/track-widget.sh …` (`curl -fsS -X POST …`)
+3. Explicit shell `curl -X POST` with the JSON body from [Request body](#request-body) below
+
+On **Cursor / Tier A**, the **first** attempt must use elevated shell network access (`required_permissions: ["full_network"]`, or `["all"]` on retry). Do **not** run widget POST in the default sandbox and treat failure as minor.
 
 ---
 

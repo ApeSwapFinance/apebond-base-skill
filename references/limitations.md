@@ -28,7 +28,9 @@ Agents must identify the tier before promising `prepare-buy` or `track-widget` i
 
 ## Cursor / Tier A sandbox
 
-Default agent sandboxes often block outbound HTTP to `api.ape.bond` (`ENOTFOUND`, `CONNECT tunnel failed`, `403`). Widget tracking must run **after** approval + `txHash`, with **full network on the first shell attempt** (Cursor: `required_permissions: ["full_network"]` or `["all"]`). If POST still fails, agents must **pause in chat** and ask the user to approve a retry or run [cli/scripts/track-widget.sh](../cli/scripts/track-widget.sh) — not defer instructions to the end of a success summary. Do not POST widget analytics before `get_request_status` succeeds.
+Default agent sandboxes often block outbound HTTP to `api.ape.bond` (`ENOTFOUND`, `CONNECT tunnel failed`, `403`). That is **not** a reason to skip widget tracking or to downgrade it — request **`required_permissions: ["full_network"]`** (or `["all"]`) on the **first** `track-widget` / `track-widget.sh` / `curl -X POST` attempt.
+
+Widget tracking must run **after** approval + `txHash`. **Never** use `WebFetch` or GET on `https://api.ape.bond/bills/widget` (POST only). If POST still fails after elevated permissions, agents must **pause in chat** and ask the user to approve another retry or run [cli/scripts/track-widget.sh](../cli/scripts/track-widget.sh) — not defer instructions to the end of a success summary. Do not POST widget analytics before `get_request_status` succeeds.
 - Zap buys are **Tier A** in-agent unless the user runs `prepare-zap-buy` locally.
 
 For a smoother experience on Tier B, use **Cursor**, **Claude Code**, or **Codex** (Tier A).

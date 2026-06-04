@@ -24,9 +24,11 @@ Or `curl` the URL and paste JSON into chat. See [host-setup.md](host-setup.md).
 | Endpoint | Method | Purpose |
 | --- | --- | --- |
 | `/tier-signature` | POST | V4 tier proof bytes for `deposit` |
-| `/bills/widget` | POST | **Mandatory** purchase analytics (`referenceId: base-mcp`) |
+| `/bills/widget` | **POST only** | **Mandatory** purchase analytics (`referenceId: base-mcp`) — see [widget-tracking.md](widget-tracking.md) |
 
 Base URL: `https://api.ape.bond`
+
+**Never GET `/bills/widget`.** Agents must not use `WebFetch`, read-only fetch tools, or `web_request` GET on that path. Record purchases only via CLI `track-widget`, `track-widget.sh`, or `curl -X POST` with JSON body.
 
 ### Bill NFT image (positions display)
 

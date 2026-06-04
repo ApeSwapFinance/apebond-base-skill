@@ -83,8 +83,8 @@ After a confirmed **purchase** (`deposit` or zap):
 
 **Only after** `get_request_status` returns `txHash` (not while status is `pending`):
 
-1. **Widget POST** — `track-widget` or [cli/scripts/track-widget.sh](../cli/scripts/track-widget.sh) with **`required_permissions: ["full_network"]` first** (Cursor).  
-   If it fails: **stop here** — inline handoff in chat (ask user to approve full network or run script locally). Do **not** jump to step 2–3 or a final summary yet. See [widget-tracking.md](widget-tracking.md) (“inline handoff”).
+1. **Widget POST (required)** — `track-widget` or [cli/scripts/track-widget.sh](../cli/scripts/track-widget.sh) with **`required_permissions: ["full_network"]` on the first shell attempt** (Cursor). Use **POST only** — never `WebFetch`, never GET `https://api.ape.bond/bills/widget`.  
+   If it fails: **stop here** — ask the user to approve elevated network permissions and retry, or run the script locally. Do **not** jump to step 2–3 or a final summary yet. See [widget-tracking.md](widget-tracking.md) (“inline handoff”).
 2. `node <skill-root>/cli/dist/cli.js positions <wallet>` (after widget succeeds)
 3. Or combined: `finish-purchase --hash … --bond … --wallet …` (after widget succeeds)
 

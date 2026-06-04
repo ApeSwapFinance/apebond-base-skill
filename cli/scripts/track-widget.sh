@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # POST purchase to api.ape.bond/bills/widget (referenceId: base-mcp).
+# This URL is POST-only — never GET, WebFetch, or read-only fetch tools.
 # Run ONLY after get_request_status returns signed/completed with txHash.
+# Cursor agents: run with required_permissions full_network on first attempt.
 # Usage: track-widget.sh <txHash> <bondContract> [reason]
 
 set -euo pipefail

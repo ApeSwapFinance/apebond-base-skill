@@ -59,6 +59,7 @@ Default skill dir: `~/.cursor/skills/apebond-base/` (global). Verify: `npx skill
 | **Widget POST failed** | User sees ENOTFOUND / 403 | **Pause in chat** — ask user to approve full-network retry or run script locally; do not defer to end of reply |
 
 Never POST `/bills/widget` between `send_calls` and confirmed `txHash`.  
+**Never GET** `https://api.ape.bond/bills/widget` — no `WebFetch`, no read-only fetch tools; widget is POST-only (`track-widget`, `track-widget.sh`, `curl -X POST`).  
 If widget POST fails, use **inline handoff** (same message thread) — see [widget-tracking.md](widget-tracking.md).
 
 **If you accidentally installed as a project skill** (`cli/.agents/skills/…`):

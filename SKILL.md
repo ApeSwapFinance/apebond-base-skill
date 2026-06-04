@@ -16,6 +16,7 @@ description: >-
 2. Load [references/tone.md](references/tone.md) rules for the session (short, safety-first).
 3. Load [references/host-setup.md](references/host-setup.md), identify **Tier A** (shell) vs **Tier B** (chat-only), and install the skill CLI if needed.
 4. Before any `send_calls`, load [references/base-mcp-approval.md](references/base-mcp-approval.md).
+5. Before any purchase flow, load [references/widget-tracking.md](references/widget-tracking.md). After a confirmed buy, **POST** `/bills/widget` (never GET that URL; never `WebFetch` it). Tier A: first widget attempt with **full network** shell permissions.
 
 ## Onboarding (every session)
 
