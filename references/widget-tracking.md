@@ -1,29 +1,37 @@
 # Widget tracking (mandatory)
 
-After every **confirmed purchase** (principal `deposit` or zap), you **must** record the transaction with `POST https://api.ape.bond/bills/widget`. The purchase flow is **not complete** until this POST succeeds (2xx). This is required protocol analytics — not optional, not “nice to have,” and not separate from “the buy succeeded on-chain.”
+After every **confirmed purchase** (principal `deposit` or zap), you **must** record the transaction with `GET https://api.ape.bond/bills/widget/register`. The purchase flow is **not complete** until this GET succeeds (2xx). This is required protocol analytics — not optional, not "nice to have," and not separate from "the buy succeeded on-chain."
 
 **Not required** for `redeem`, `batchRedeem`, or NFT transfers.
 
 ---
 
-## HTTP method rules (never violate)
+## Endpoint (use this only)
 
-`/bills/widget` is a **write-only analytics endpoint**. It accepts **POST** with a JSON body and returns a short HTTP response. There is **nothing to read** from that URL.
+Register purchases via **GET** with query parameters:
 
-| Forbidden on `https://api.ape.bond/bills/widget` | Why |
+```
+GET https://api.ape.bond/bills/widget/register?chainId=8453&transactionHash=<0x...>&billContract=<0x...>&referenceId=base-mcp
+```
+
+Optional query param: `reason` (string).
+
+**Deprecated — do not use:**
+
+| Forbidden | Why |
 | --- | --- |
-| **GET** (browser, `curl` without `-X POST`, `WebFetch`, read-only HTTP tools) | Wrong method — may hang, 404, or mislead; does not record the purchase |
-| **`WebFetch` / markdown fetch tools** on the widget URL | Always GET — **never** use for widget tracking |
-| **`web_request` with `method: "GET"`** | Same |
-| Treating widget as “fetch metadata” or “check tracking status” | Use `get_request_status` for tx status; widget is **only** a POST after `txHash` is known |
+| `POST https://api.ape.bond/bills/widget` | Legacy path; blocked in many agent sandboxes |
+| Bare `GET https://api.ape.bond/bills/widget` | Wrong path — use `/bills/widget/register` |
+| Widget tracking before `txHash` is known | Use `get_request_status` for tx status first |
 
 **Allowed** ways to run widget tracking (after `txHash` from `get_request_status`):
 
 1. `node <skill-root>/cli/dist/cli.js track-widget --hash … --bond …`
-2. `<skill-root>/cli/scripts/track-widget.sh …` (`curl -fsS -X POST …`)
-3. Explicit shell `curl -X POST` with the JSON body from [Request body](#request-body) below
+2. `<skill-root>/cli/scripts/track-widget.sh …` (`curl -G …`)
+3. Base MCP `web_request` GET to the full register URL
+4. Explicit shell `curl -G` with query params from [Query parameters](#query-parameters) below
 
-On **Cursor / Tier A**, the **first** attempt must use elevated shell network access (`required_permissions: ["full_network"]`, or `["all"]` on retry). Do **not** run widget POST in the default sandbox and treat failure as minor.
+On **Cursor / Tier A**, the default sandbox can reach this GET endpoint — **no** `full_network` permission is required for widget register unless a retry still fails.
 
 ---
 
@@ -34,8 +42,8 @@ Do **not** run widget tracking until **all** of steps 1–2 are complete.
 | Step | Required | Forbidden |
 |------|----------|-----------|
 | 1 | User replied **approved** in Base Account (or agent polled `get_request_status` with user consent) | — |
-| 2 | `get_request_status(requestId)` → status `signed` or `completed` **and** `txHash` present | `track-widget`, `finish-purchase`, widget `curl`, `web_request` POST to `/bills/widget` |
-| 3 | Widget POST using **`txHash` from step 2 only** (never `requestId`, never a guessed hash); Cursor: **`full_network` on first try** | POST before step 2; default sandbox only |
+| 2 | `get_request_status(requestId)` → status `signed` or `completed` **and** `txHash` present | `track-widget`, `finish-purchase`, widget `curl`, `web_request` GET to register URL |
+| 3 | Widget register GET using **`txHash` from step 2 only** (never `requestId`, never a guessed hash) | Register before step 2 |
 | 4 | `positions` or `finish-purchase` | Final purchase summary **before** step 3 succeeds |
 | 5 | Final success message | Widget failure only as a footnote after positions summary |
 
@@ -55,42 +63,31 @@ From `get_request_status(requestId)` **after** step 1:
 
 - Use `txHash` from the response when present.
 - Accept statuses `completed` or `signed` as on-chain success.
-- If there is no `txHash`, stop and ask the user to finish approval or reject the stale request — do not widget POST.
+- If there is no `txHash`, stop and ask the user to finish approval or reject the stale request — do not widget register.
 
 ---
 
-## Request body
+## Query parameters
+
+| Param | Required | Value |
+| --- | --- | --- |
+| `chainId` | yes | `8453` |
+| `transactionHash` | yes | Confirmed hash from `get_request_status` |
+| `billContract` | yes | Bond contract address |
+| `referenceId` | yes | `base-mcp` |
+| `reason` | no | Optional string |
+
+Example URL:
 
 ```
-POST https://api.ape.bond/bills/widget
-Content-Type: application/json
-
-{
-  "chainId": 8453,
-  "transactionHash": "<0x confirmed hash from get_request_status>",
-  "billContract": "<bond contract address>",
-  "referenceId": "base-mcp"
-}
+https://api.ape.bond/bills/widget/register?chainId=8453&transactionHash=0x2ea849ba136211037fca6334b21c56026020171d5e39288c24dce2922722a6be&billContract=0x4075b614e75cb4aed6c8de4b0180e3d2bede4308&referenceId=base-mcp
 ```
-
-Optional field: `reason` (string).
 
 ---
 
 ## Tier A — Cursor, Claude Code, Codex (shell)
 
-### Cursor: run widget POST outside sandbox on the first try
-
-The default agent shell **cannot** reach `api.ape.bond` (`ENOTFOUND`, `CONNECT tunnel failed`, `403`). That is a **Cursor harness limitation**, not a bad transaction.
-
-**On step 3, always** invoke the shell with network from the start:
-
-- Cursor: `required_permissions: ["full_network"]` on the tool call
-- If it still fails: retry once with `required_permissions: ["all"]`
-
-Do **not** run `track-widget` / `track-widget.sh` in the default sandbox first and only mention network at the end of the chat.
-
-**Preferred** (after step 2, **with full network**):
+**Preferred** (after step 2):
 
 ```bash
 node <skill-root>/cli/dist/cli.js track-widget --hash <txHash> --bond <bondContract>
@@ -109,16 +106,16 @@ node <skill-root>/cli/dist/cli.js finish-purchase \
   --hash <txHash> --bond <bondContract> --wallet <wallet>
 ```
 
-### If widget POST still fails (inline handoff — do not skip ahead)
+### If widget register still fails (inline handoff — do not skip ahead)
 
 **Stop the flow in the same turn.** Do **not** yet send the final purchase summary or positions table.
 
 Tell the user immediately, in chat:
 
 1. On-chain buy **is** confirmed (`txHash` + BaseScan link).
-2. Widget analytics POST failed because this environment blocks outbound HTTP to `api.ape.bond`.
+2. Widget register GET failed (network or API error).
 3. Ask them to choose **one** path **now** (still in this thread):
-   - **A)** Approve you to re-run the same command with full network / outside sandbox (Cursor permission prompt).
+   - **A)** Retry the same command (CLI or script).
    - **B)** Run locally and paste the result:
 
 ```bash
@@ -127,7 +124,7 @@ Tell the user immediately, in chat:
 
 4. **Wait** for success (`{"ok":true,...}` from CLI or empty/2xx from curl) or user confirmation before step 4 (`positions`) and before saying the purchase flow is complete.
 
-**Forbidden pattern:** Returning a full “Purchase confirmed” + positions summary and only adding “widget tracking failed, run this curl at the end” as a footnote.
+**Forbidden pattern:** Returning a full "Purchase confirmed" + positions summary and only adding "widget tracking failed, run this curl at the end" as a footnote.
 
 See [host-setup.md](host-setup.md) (Tier A sandbox).
 
@@ -135,7 +132,7 @@ See [host-setup.md](host-setup.md) (Tier A sandbox).
 
 ## Shell script fallback (all tiers, after step 2)
 
-Canonical one-liner — same payload as [cli/src/apis.ts](../cli/src/apis.ts):
+Canonical one-liner — same params as [cli/src/apis.ts](../cli/src/apis.ts):
 
 ```bash
 <skill-root>/cli/scripts/track-widget.sh <txHash> <bondContract> [reason]
@@ -149,27 +146,26 @@ Example:
   0x4075b614e75cb4aed6c8de4b0180e3d2bede4308
 ```
 
-Uses `curl -fsS` (fails on HTTP errors). Success is any **2xx** response.
-
-Tier A agents: run this script with **full network** permissions if the CLI POST fails in sandbox.
+Uses `curl -fsS -G` (fails on HTTP errors). Success is any **2xx** response.
 
 ---
 
 ## Tier B — ChatGPT / Claude web
 
-Base MCP `web_request` usually **cannot** POST to `api.ape.bond`. After the agent runs step 2 via `get_request_status`:
+After the agent runs step 2 via `get_request_status`:
 
 1. Give the user the exact `track-widget.sh` or CLI command with real `txHash` and bond address.
-2. User runs locally and pastes output, or confirms HTTP success.
-3. Agent must not mark the purchase flow complete until widget tracking succeeds.
+2. Or use Base MCP `web_request` GET to the full register URL.
+3. User runs locally and pastes output, or confirms HTTP success.
+4. Agent must not mark the purchase flow complete until widget tracking succeeds.
 
 ---
 
 ## Agent retry
 
-If the POST fails **after** step 2:
+If the register GET fails **after** step 2:
 
-1. Retry **once** in the **same turn** with `full_network` / `all` (Tier A).
+1. Retry **once** in the **same turn**.
 2. If still failing → **inline handoff** (section above); pause until resolved.
 3. On-chain purchase may still have succeeded — state that **when you pause**, not only in a closing footnote.
 

@@ -48,19 +48,19 @@ cd ~/.cursor/skills/apebond-base/cli && npm install && npm run build
 
 Default skill dir: `~/.cursor/skills/apebond-base/` (global). Verify: `npx skills ls -g`
 
-### Cursor / Tier A — sandbox and widget POST
+### Cursor / Tier A — sandbox and widget register
 
 `prepare-buy`, `track-widget`, and [cli/scripts/track-widget.sh](../cli/scripts/track-widget.sh) call `realtime-api.ape.bond` and `api.ape.bond`. Cursor’s default shell sandbox may block those hosts.
 
 | Phase | Network in sandbox | Agent action |
 |-------|-------------------|--------------|
 | `prepare-buy` / `list-bonds` | Often blocked | Use `required_permissions: ["full_network"]` or Base MCP `chain_rpc_request` where applicable |
-| **Widget POST** | Blocked in default sandbox | After `txHash`: run `track-widget` / `track-widget.sh` with **`required_permissions: ["full_network"]` on the first try** |
-| **Widget POST failed** | User sees ENOTFOUND / 403 | **Pause in chat** — ask user to approve full-network retry or run script locally; do not defer to end of reply |
+| **Widget register GET** | Usually OK in default sandbox | After `txHash`: run `track-widget` / `track-widget.sh` (GET `/bills/widget/register`) |
+| **Widget register failed** | Network or API error | **Pause in chat** — ask user to retry or run script locally; do not defer to end of reply |
 
-Never POST `/bills/widget` between `send_calls` and confirmed `txHash`.  
-**Never GET** `https://api.ape.bond/bills/widget` — no `WebFetch`, no read-only fetch tools; widget is POST-only (`track-widget`, `track-widget.sh`, `curl -X POST`).  
-If widget POST fails, use **inline handoff** (same message thread) — see [widget-tracking.md](widget-tracking.md).
+Never register widget between `send_calls` and confirmed `txHash`.  
+Use **GET** `https://api.ape.bond/bills/widget/register` with query params — not legacy `POST /bills/widget`.  
+If widget register fails, use **inline handoff** (same message thread) — see [widget-tracking.md](widget-tracking.md).
 
 **If you accidentally installed as a project skill** (`cli/.agents/skills/…`):
 
@@ -143,7 +143,7 @@ Default skill dir: `~/.codex/skills/apebond-base/`
 | Approve | Show **Approve in Base Account** link only | User clicks link |
 | Wait | User replies **approved** | — |
 | Status | `get_request_status(requestId)` | — |
-| track-widget | POST blocked on `web_request`; shell needs full network | After `txHash`: `track-widget` or [cli/scripts/track-widget.sh](../cli/scripts/track-widget.sh) (see [widget-tracking.md](widget-tracking.md)) |
+| track-widget | Use CLI or `web_request` GET to register URL | After `txHash`: `track-widget` or [cli/scripts/track-widget.sh](../cli/scripts/track-widget.sh) (see [widget-tracking.md](widget-tracking.md)) |
 | positions | Ask user to paste or run locally | `positions <wallet>` |
 
 Tier B still supports **wallet + send_calls + approval + status**; be explicit when handing off to local CLI.

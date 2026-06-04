@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
-# POST purchase to api.ape.bond/bills/widget (referenceId: base-mcp).
-# This URL is POST-only — never GET, WebFetch, or read-only fetch tools.
+# GET register purchase at api.ape.bond/bills/widget/register (referenceId: base-mcp).
 # Run ONLY after get_request_status returns signed/completed with txHash.
-# Cursor agents: run with required_permissions full_network on first attempt.
 # Usage: track-widget.sh <txHash> <bondContract> [reason]
 
 set -euo pipefail
@@ -21,17 +19,18 @@ if [[ ! "$BOND" =~ ^0x[0-9a-fA-F]{40}$ ]]; then
   exit 1
 fi
 
-# Build JSON (reason omitted when empty)
+CURL_ARGS=(
+  -fsS -G "https://api.ape.bond/bills/widget/register"
+  --data-urlencode "chainId=8453"
+  --data-urlencode "transactionHash=$TX_HASH"
+  --data-urlencode "billContract=$BOND"
+  --data-urlencode "referenceId=base-mcp"
+)
+
 if [[ -n "$REASON" ]]; then
-  BODY=$(printf '{"chainId":8453,"transactionHash":"%s","billContract":"%s","referenceId":"base-mcp","reason":"%s"}' \
-    "$TX_HASH" "$BOND" "$REASON")
-else
-  BODY=$(printf '{"chainId":8453,"transactionHash":"%s","billContract":"%s","referenceId":"base-mcp"}' \
-    "$TX_HASH" "$BOND")
+  CURL_ARGS+=(--data-urlencode "reason=$REASON")
 fi
 
-curl -fsS -X POST "https://api.ape.bond/bills/widget" \
-  -H "content-type: application/json" \
-  -d "$BODY"
+curl "${CURL_ARGS[@]}"
 
 echo ""

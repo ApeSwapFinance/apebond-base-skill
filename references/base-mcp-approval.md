@@ -21,8 +21,8 @@ Today Base MCP uses **approval mode only**: every write returns an `approvalUrl`
 Until `get_request_status` returns `signed` or `completed` **with** `txHash`, do **not** run:
 
 - `track-widget` or `finish-purchase` (CLI)
-- [cli/scripts/track-widget.sh](../cli/scripts/track-widget.sh) or any widget `curl`
-- Base MCP `web_request` POST to `https://api.ape.bond/bills/widget`
+- [cli/scripts/track-widget.sh](../cli/scripts/track-widget.sh) or any widget register `curl`
+- Base MCP `web_request` GET to `https://api.ape.bond/bills/widget/register?...`
 
 Saying **approved** is not enough — you must read `txHash` from `get_request_status` first. See [widget-tracking.md](widget-tracking.md).
 
@@ -83,8 +83,8 @@ After a confirmed **purchase** (`deposit` or zap):
 
 **Only after** `get_request_status` returns `txHash` (not while status is `pending`):
 
-1. **Widget POST (required)** — `track-widget` or [cli/scripts/track-widget.sh](../cli/scripts/track-widget.sh) with **`required_permissions: ["full_network"]` on the first shell attempt** (Cursor). Use **POST only** — never `WebFetch`, never GET `https://api.ape.bond/bills/widget`.  
-   If it fails: **stop here** — ask the user to approve elevated network permissions and retry, or run the script locally. Do **not** jump to step 2–3 or a final summary yet. See [widget-tracking.md](widget-tracking.md) (“inline handoff”).
+1. **Widget register (required)** — `track-widget` or [cli/scripts/track-widget.sh](../cli/scripts/track-widget.sh). Uses GET `/bills/widget/register` with query params (default sandbox OK on Cursor).  
+   If it fails: **stop here** — ask the user to retry or run the script locally. Do **not** jump to step 2–3 or a final summary yet. See [widget-tracking.md](widget-tracking.md) (“inline handoff”).
 2. `node <skill-root>/cli/dist/cli.js positions <wallet>` (after widget succeeds)
 3. Or combined: `finish-purchase --hash … --bond … --wallet …` (after widget succeeds)
 
@@ -100,7 +100,7 @@ node <skill-root>/cli/dist/cli.js track-widget --hash <txHash> --bond <bondContr
 node <skill-root>/cli/dist/cli.js finish-purchase --hash <txHash> --bond <bondContract> --wallet <wallet>
 ```
 
-Or `curl` from [widget-tracking.md](widget-tracking.md).
+Or `curl -G` from [widget-tracking.md](widget-tracking.md).
 
 3. User pastes CLI output, or agent confirms widget `ok` from paste.
 

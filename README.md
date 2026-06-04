@@ -47,7 +47,7 @@ See [references/example-prompts.md](references/example-prompts.md).
 - **Read**: `GET https://realtime-api.ape.bond/bonds?chainId=8453`
 - **Prepare**: bundled CLI → `{ transactions: [{ to, data, value, chainId }] }`
 - **Execute**: Base MCP `send_calls` with `chain: "base"` → user approves in Base Account ([base-mcp-approval.md](references/base-mcp-approval.md))
-- **Track**: mandatory `POST https://api.ape.bond/bills/widget` with `referenceId: "base-mcp"` after confirmed purchases
+- **Track**: mandatory `GET https://api.ape.bond/bills/widget/register` with `referenceId: "base-mcp"` after confirmed purchases
 
 See [plugins/apebond-base.md](plugins/apebond-base.md) for full orchestration.
 

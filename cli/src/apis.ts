@@ -43,18 +43,16 @@ export async function trackWidgetTransaction(opts: {
   billContract: string
   reason?: string
 }): Promise<void> {
-  const res = await fetch(`${API_V2}/bills/widget`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({
-      chainId: CHAIN_ID_BASE,
-      transactionHash: opts.transactionHash,
-      billContract: opts.billContract,
-      referenceId: WIDGET_REFERENCE_ID,
-      reason: opts.reason,
-    }),
+  const params = new URLSearchParams({
+    chainId: String(CHAIN_ID_BASE),
+    transactionHash: opts.transactionHash,
+    billContract: opts.billContract,
+    referenceId: WIDGET_REFERENCE_ID,
   })
-  if (!res.ok) throw new Error(`POST /bills/widget failed: ${res.status} ${await res.text()}`)
+  if (opts.reason) params.set('reason', opts.reason)
+
+  const res = await fetch(`${API_V2}/bills/widget/register?${params}`)
+  if (!res.ok) throw new Error(`GET /bills/widget/register failed: ${res.status} ${await res.text()}`)
 }
 
 export async function fetchSoulZapQuote(body: Record<string, unknown>): Promise<{

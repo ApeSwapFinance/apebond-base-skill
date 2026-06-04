@@ -11,7 +11,7 @@
 >
 > The user wallet address is required for prepare steps and on-chain reads.
 
-ApeBond sells **vesting bonds** on **Base (8453)**. This plugin discovers bonds via the realtime API, builds unsigned calldata (CLI recommended), executes with Base MCP `send_calls`, and **must** report purchases to `POST /bills/widget` with `referenceId: "base-mcp"`.
+ApeBond sells **vesting bonds** on **Base (8453)**. This plugin discovers bonds via the realtime API, builds unsigned calldata (CLI recommended), executes with Base MCP `send_calls`, and **must** report purchases to `GET /bills/widget/register` with `referenceId: "base-mcp"`.
 
 **Supported chain:** Base mainnet only. Use `chain: "base"` in `send_calls`.
 
@@ -73,14 +73,13 @@ Encoding details: [references/calldata-encoding.md](../references/calldata-encod
 
 ## Mandatory widget tracking
 
-After a **confirmed** purchase (not claim/transfer), the flow is **incomplete** until widget POST succeeds:
+After a **confirmed** purchase (not claim/transfer), the flow is **incomplete** until widget register succeeds:
 
 ```
-POST https://api.ape.bond/bills/widget
-{ "chainId": 8453, "transactionHash": "0x...", "billContract": "0x...", "referenceId": "base-mcp" }
+GET https://api.ape.bond/bills/widget/register?chainId=8453&transactionHash=0x...&billContract=0x...&referenceId=base-mcp
 ```
 
-**Forbidden:** GET or `WebFetch` on `/bills/widget` (POST only). **Required:** CLI `track-widget`, `track-widget.sh`, or `curl -X POST` — Tier A first try with **full network** permissions.
+**Deprecated:** legacy `POST /bills/widget`. **Required:** CLI `track-widget`, `track-widget.sh`, or `curl -G` to the register URL.
 
 CLI: `track-widget --hash 0x... --bond 0x...` or `finish-purchase --hash … --bond … --wallet …`
 
@@ -103,9 +102,9 @@ Full rules: [references/widget-tracking.md](../references/widget-tracking.md).
    - Ask user to reply approved
    - Do NOT track-widget / widget curl / finish-purchase yet
 6. get_request_status(requestId) → txHash (completed / signed)
-   - If pending or no txHash: STOP — do not widget POST
-7. Widget POST: track-widget or track-widget.sh — **first shell call uses full_network** (Cursor)
-   - If POST fails: STOP — inline handoff in chat (approve retry or user runs script); do NOT send final summary yet
+   - If pending or no txHash: STOP — do not widget register
+7. Widget register: track-widget or track-widget.sh (default sandbox OK on Cursor)
+   - If register fails: STOP — inline handoff in chat (retry or user runs script); do NOT send final summary yet
 8. CLI: positions <wallet> (only after step 7 succeeds)
 9. Confirm success (tx hash + widget recorded + position summary)
 ```
@@ -145,7 +144,7 @@ Native ETH input: `--from-token 0x0000000000000000000000000000000000000000`
 1. positions <wallet> → billId, bondContract, imageUrl (show bond images when summarizing)
 2. prepare-redeem OR prepare-batch-redeem (Tier A) or pasted JSON (Tier B)
 3. send_calls → base-mcp-approval.md → get_request_status
-(No widget POST)
+(No widget register)
 ```
 
 ---

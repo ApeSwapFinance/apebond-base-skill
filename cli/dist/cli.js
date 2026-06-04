@@ -110,7 +110,7 @@ program
     .requiredOption('--hash <txHash>', 'Confirmed transaction hash')
     .requiredOption('--bond <address>', 'Bond contract address')
     .requiredOption('--wallet <address>', 'Buyer wallet for positions lookup')
-    .option('--reason <reason>', 'Optional reason passed to widget POST')
+    .option('--reason <reason>', 'Optional reason passed to widget register')
     .action(async (opts) => {
     assertTxHash(opts.hash);
     assertBondAddress(opts.bond);

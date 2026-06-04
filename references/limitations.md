@@ -22,15 +22,13 @@ Agents must identify the tier before promising `prepare-buy` or `track-widget` i
 
 ## Consumer chat apps (ChatGPT / Claude web) — Tier B
 
-- **POST** endpoints (`tier-signature`, Soul Zap, `/bills/widget`) require shell or local CLI.
+- **POST** endpoints (`tier-signature`, Soul Zap) require shell or local CLI.
 - User must run `prepare-buy` locally and paste `transactions[]` before `send_calls`.
 - After approval and `get_request_status` → `txHash`, user must run `track-widget` or [cli/scripts/track-widget.sh](../cli/scripts/track-widget.sh) locally unless the agent shell has network — see [widget-tracking.md](widget-tracking.md).
 
 ## Cursor / Tier A sandbox
 
-Default agent sandboxes often block outbound HTTP to `api.ape.bond` (`ENOTFOUND`, `CONNECT tunnel failed`, `403`). That is **not** a reason to skip widget tracking or to downgrade it — request **`required_permissions: ["full_network"]`** (or `["all"]`) on the **first** `track-widget` / `track-widget.sh` / `curl -X POST` attempt.
-
-Widget tracking must run **after** approval + `txHash`. **Never** use `WebFetch` or GET on `https://api.ape.bond/bills/widget` (POST only). If POST still fails after elevated permissions, agents must **pause in chat** and ask the user to approve another retry or run [cli/scripts/track-widget.sh](../cli/scripts/track-widget.sh) — not defer instructions to the end of a success summary. Do not POST widget analytics before `get_request_status` succeeds.
+Default agent sandboxes may block outbound HTTP to `api.ape.bond` for some endpoints (`ENOTFOUND`, `CONNECT tunnel failed`, `403`). Widget register uses **GET** `/bills/widget/register` and typically works in the default sandbox. If register still fails, agents must **pause in chat** and ask the user to retry or run [cli/scripts/track-widget.sh](../cli/scripts/track-widget.sh) — not defer instructions to the end of a success summary. Do not register widget analytics before `get_request_status` succeeds.
 - Zap buys are **Tier A** in-agent unless the user runs `prepare-zap-buy` locally.
 
 For a smoother experience on Tier B, use **Cursor**, **Claude Code**, or **Codex** (Tier A).
