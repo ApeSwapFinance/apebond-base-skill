@@ -5,3 +5,4 @@ cli/.agents/
 .DS_Store
 .env
 .env.local
+apebond-base-skill.zip
