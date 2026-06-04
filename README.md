@@ -22,6 +22,8 @@ node dist/cli.js list-bonds
 
 ## User install
 
+**Discovery from ape.bond:** https://ape.bond/llms.txt — host-agnostic install guide for all supported agents (Cursor, Claude Code, Codex, ChatGPT, Claude web, Hermes).
+
 **Tier A** (full in-agent CLI):
 
 ```bash

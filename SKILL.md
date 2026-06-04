@@ -12,6 +12,7 @@ description: >-
 
 ## Prerequisites
 
+0. **Discovery:** Host-agnostic install matrix for all supported agents: https://ape.bond/llms.txt
 1. **Base MCP** must be connected. If no Base MCP tools are available, send the user to [Base MCP quickstart](https://docs.base.org/ai-agents/quickstart) and stop.
 2. Load [references/tone.md](references/tone.md) rules for the session (short, safety-first).
 3. Load [references/host-setup.md](references/host-setup.md), identify **Tier A** (shell) vs **Tier B** (chat-only), and install the skill CLI if needed.
