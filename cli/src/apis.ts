@@ -7,6 +7,16 @@ import {
 } from './constants.js'
 import type { BondsListResponse, RealtimeBond } from './types.js'
 
+/** Full bonds catalog (all Base bond contracts). Used only to label positions, not to discover them. */
+export async function fetchBondsCatalog(): Promise<
+  Array<{ chainId?: number; contractAddress?: Record<number, string>; earnToken?: { symbol?: string } }>
+> {
+  const res = await fetch(`${REALTIME_API}/utils/bonds`)
+  if (!res.ok) return []
+  const data = (await res.json()) as unknown
+  return Array.isArray(data) ? data : []
+}
+
 export async function fetchBaseBonds(bondAddress?: string): Promise<RealtimeBond[]> {
   const params = new URLSearchParams({ chainId: String(CHAIN_ID_BASE) })
   if (bondAddress) params.set('bond', bondAddress)

@@ -1,5 +1,7 @@
 export const CHAIN_ID_BASE = 8453;
 export const BASE_MCP_CHAIN = 'base';
+/** Shared Base Bill NFT (V3) — same as SDK `billNnftAddress` on Base */
+export const BASE_BILL_NFT = '0xD8C7fe06E24A2862d78D0F1BF040bA79463d9351';
 export const REALTIME_API = 'https://realtime-api.ape.bond';
 export const API_V2 = 'https://api.ape.bond';
 export const PRICE_API = 'https://price-api.ape.bond';

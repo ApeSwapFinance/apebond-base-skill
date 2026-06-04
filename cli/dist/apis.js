@@ -1,4 +1,12 @@
 import { API_V2, CHAIN_ID_BASE, REALTIME_API, SOUL_ZAP_API, WIDGET_REFERENCE_ID, } from './constants.js';
+/** Full bonds catalog (all Base bond contracts). Used only to label positions, not to discover them. */
+export async function fetchBondsCatalog() {
+    const res = await fetch(`${REALTIME_API}/utils/bonds`);
+    if (!res.ok)
+        return [];
+    const data = (await res.json());
+    return Array.isArray(data) ? data : [];
+}
 export async function fetchBaseBonds(bondAddress) {
     const params = new URLSearchParams({ chainId: String(CHAIN_ID_BASE) });
     if (bondAddress)

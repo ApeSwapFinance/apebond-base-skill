@@ -25,7 +25,7 @@ program
 });
 program
     .command('positions <address>')
-    .description('List bill NFT ids and claimable payout per bond for a wallet')
+    .description('List Base Bill NFT positions (on-chain via 0xD8C7…9351) and claimable payout per bond')
     .action(async (address) => {
     printJson(await fetchPositions(address));
 });

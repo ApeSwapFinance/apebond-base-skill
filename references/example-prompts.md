@@ -68,4 +68,4 @@ and soldOut status. Then show my bond positions for my Base Account wallet.
 No transactions.
 ```
 
-On Tier B, the agent may ask you to paste `list-bonds` or `positions` CLI output if `web_request` to realtime-api is blocked.
+On Tier B, the agent may ask you to paste `list-bonds` CLI output if `web_request` to realtime-api is blocked. `positions` only needs Base RPC (on-chain Bill NFT); optional `/utils/bonds` is for token symbols only.

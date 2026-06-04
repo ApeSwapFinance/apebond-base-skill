@@ -26,7 +26,7 @@ GET https://realtime-api.ape.bond/bonds?chainId=8453
 GET https://realtime-api.ape.bond/bonds?chainId=8453&bond=<bondContract>
 ```
 
-CLI: `list-bonds` · `positions <wallet>`
+CLI: `list-bonds` · `positions <wallet>` (on-chain Bill NFT `0xD8C7fe06E24A2862d78D0F1BF040bA79463d9351`, not active `/bonds` list)
 
 Validate: `soldOut !== true`, sufficient `tokensRemaining` / capacity for the intended size.
 

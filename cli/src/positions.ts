@@ -1,17 +1,10 @@
 import { createPublicClient, http } from 'viem'
 import { base } from 'viem/chains'
-import { fetchBaseBonds } from './apis.js'
-import { BASE_RPC, CHAIN_ID_BASE } from './constants.js'
-import { getBondContract } from './utils.js'
+import bondNftAbi from '../abi/bondNft.json' with { type: 'json' }
+import { fetchBondsCatalog } from './apis.js'
+import { BASE_BILL_NFT, BASE_RPC, CHAIN_ID_BASE } from './constants.js'
 
-const bondAbi = [
-  {
-    inputs: [{ name: 'owner', type: 'address' }],
-    name: 'getBillIds',
-    outputs: [{ name: '', type: 'uint256[]' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
+const bondReadAbi = [
   {
     inputs: [{ name: 'billId', type: 'uint256' }],
     name: 'claimablePayout',
@@ -22,49 +15,63 @@ const bondAbi = [
 ] as const
 
 export interface PositionRow {
+  billNft: string
   bondContract: string
   earnToken?: string
   billId: string
   claimablePayout: string
 }
 
-export async function fetchPositions(owner: string): Promise<PositionRow[]> {
-  const bonds = await fetchBaseBonds()
-  const client = createPublicClient({ chain: base, transport: http(BASE_RPC) })
-  const rows: PositionRow[] = []
-
-  for (const bond of bonds) {
-    if (bond.soldOut) continue
-    let contract: string
-    try {
-      contract = getBondContract(bond, CHAIN_ID_BASE)
-    } catch {
-      continue
-    }
-
-    const ids = await client.readContract({
-      address: contract as `0x${string}`,
-      abi: bondAbi,
-      functionName: 'getBillIds',
-      args: [owner as `0x${string}`],
-    })
-
-    for (const id of ids) {
-      if (id === 0n) continue
-      const claimable = await client.readContract({
-        address: contract as `0x${string}`,
-        abi: bondAbi,
-        functionName: 'claimablePayout',
-        args: [id],
-      })
-      rows.push({
-        bondContract: contract,
-        earnToken: bond.earnToken?.symbol,
-        billId: id.toString(),
-        claimablePayout: claimable.toString(),
-      })
-    }
+function earnSymbolByBondContract(
+  catalog: Array<{ chainId?: number; contractAddress?: Record<number, string>; earnToken?: { symbol?: string } }>,
+): Map<string, string> {
+  const map = new Map<string, string>()
+  for (const bond of catalog) {
+    if (bond.chainId !== CHAIN_ID_BASE) continue
+    const addr = bond.contractAddress?.[CHAIN_ID_BASE]
+    if (!addr || !bond.earnToken?.symbol) continue
+    map.set(addr.toLowerCase(), bond.earnToken.symbol)
   }
+  return map
+}
+
+/**
+ * Discover positions like SDK Your Bonds (EVM): enumerate Bill NFTs on Base, then read each bond contract.
+ * Does not use realtime-api /bonds (active list only) — inactive bonds still appear if the user holds the NFT.
+ */
+export async function fetchPositions(owner: string): Promise<PositionRow[]> {
+  const client = createPublicClient({ chain: base, transport: http(BASE_RPC) })
+  const ownerAddr = owner as `0x${string}`
+
+  const owned = (await client.readContract({
+    address: BASE_BILL_NFT,
+    abi: bondNftAbi,
+    functionName: 'allTokensDataOfOwner',
+    args: [ownerAddr],
+  })) as ReadonlyArray<{ tokenId: bigint; billAddress: `0x${string}` }>
+
+  if (!owned.length) return []
+
+  const catalog = await fetchBondsCatalog()
+  const earnByBond = earnSymbolByBondContract(catalog)
+
+  const rows = await Promise.all(
+    owned.map(async ({ tokenId, billAddress }) => {
+      const claimable = await client.readContract({
+        address: billAddress,
+        abi: bondReadAbi,
+        functionName: 'claimablePayout',
+        args: [tokenId],
+      })
+      return {
+        billNft: BASE_BILL_NFT,
+        bondContract: billAddress,
+        earnToken: earnByBond.get(billAddress.toLowerCase()),
+        billId: tokenId.toString(),
+        claimablePayout: claimable.toString(),
+      }
+    }),
+  )
 
   return rows
 }
