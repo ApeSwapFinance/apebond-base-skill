@@ -112,4 +112,26 @@ program
     printJson({ ok: true, referenceId: 'base-mcp' })
   })
 
+program
+  .command('finish-purchase')
+  .description('After a confirmed purchase: track-widget then positions (mandatory post-approval steps)')
+  .requiredOption('--hash <txHash>', 'Confirmed transaction hash')
+  .requiredOption('--bond <address>', 'Bond contract address')
+  .requiredOption('--wallet <address>', 'Buyer wallet for positions lookup')
+  .option('--reason <reason>', 'Optional reason passed to widget POST')
+  .action(async (opts) => {
+    await trackWidgetTransaction({
+      transactionHash: opts.hash,
+      billContract: opts.bond,
+      reason: opts.reason,
+    })
+    const positions = await fetchPositions(opts.wallet)
+    printJson({
+      widget: { ok: true, referenceId: 'base-mcp' },
+      transactionHash: opts.hash,
+      billContract: opts.bond,
+      positions,
+    })
+  })
+
 program.parse()

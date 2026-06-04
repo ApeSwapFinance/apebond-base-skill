@@ -6,6 +6,8 @@
 > Before any ApeBond action:
 > 1. Confirm Base MCP is connected (tools like `get_wallets`, `send_calls` available). If not → [Base MCP quickstart](https://docs.base.org/ai-agents/quickstart).
 > 2. Run onboarding from the parent [SKILL.md](../SKILL.md) (`get_wallets`, disclaimer).
+> 3. Load [references/host-setup.md](../references/host-setup.md) and identify **Tier A** vs **Tier B**.
+> 4. Load [references/base-mcp-approval.md](../references/base-mcp-approval.md) before any `send_calls`.
 >
 > The user wallet address is required for prepare steps and on-chain reads.
 
@@ -13,7 +15,7 @@ ApeBond sells **vesting bonds** on **Base (8453)**. This plugin discovers bonds 
 
 **Supported chain:** Base mainnet only. Use `chain: "base"` in `send_calls`.
 
-**CLI (recommended):** From this skill repo, `cd cli && npm install && npm run build`. See [references/api-endpoints.md](../references/api-endpoints.md).
+**CLI:** `node <skill-root>/cli/dist/cli.js …` — see [references/host-setup.md](../references/host-setup.md). Tier A: agent runs CLI. Tier B: user runs locally and pastes JSON.
 
 ---
 
@@ -24,7 +26,7 @@ GET https://realtime-api.ape.bond/bonds?chainId=8453
 GET https://realtime-api.ape.bond/bonds?chainId=8453&bond=<bondContract>
 ```
 
-CLI: `node dist/cli.js list-bonds` · `node dist/cli.js positions <wallet>`
+CLI: `list-bonds` · `positions <wallet>`
 
 Validate: `soldOut !== true`, sufficient `tokensRemaining` / capacity for the intended size.
 
@@ -65,6 +67,8 @@ Execute the **full** `transactions` array in **one** `send_calls` when multiple 
 
 Encoding details: [references/calldata-encoding.md](../references/calldata-encoding.md).
 
+**Amount:** `--amount` is **human units** (e.g. `0.01` = 0.01 USDC, `10` = 10 USDC).
+
 ---
 
 ## Mandatory widget tracking
@@ -76,7 +80,7 @@ POST https://api.ape.bond/bills/widget
 { "chainId": 8453, "transactionHash": "0x...", "billContract": "0x...", "referenceId": "base-mcp" }
 ```
 
-CLI: `track-widget --hash 0x... --bond 0x...`
+CLI: `track-widget --hash 0x... --bond 0x...` or `finish-purchase --hash … --bond … --wallet …`
 
 Full rules: [references/widget-tracking.md](../references/widget-tracking.md).
 
@@ -84,41 +88,69 @@ Full rules: [references/widget-tracking.md](../references/widget-tracking.md).
 
 ## Orchestration: buy with principal token
 
+### Tier A (Cursor, Claude Code, Codex)
+
 ```
 1. get_wallets → from address
-2. GET /bonds?chainId=8453&bond=<bond>  (or CLI list-bonds)
-3. CLI: prepare-buy --bond ... --amount ... --from ... [--with-tiers]
+2. list-bonds or GET /bonds?chainId=8453&bond=<bond>
+3. CLI: prepare-buy --bond … --amount … --from … [--with-tiers]
+   - V4 bonds: prefer --with-tiers when api.ape.bond is reachable
 4. send_calls(chain="base", calls from transactions[])
-5. User approves → get_request_status(requestId) until confirmed
-6. CLI: track-widget --hash <tx> --bond <bond>   # MANDATORY
-7. Confirm success to user (include tx hash + widget recorded)
+5. Post-send_calls — see references/base-mcp-approval.md:
+   - Show Approve in Base Account link (+ open URL in shell harness)
+   - Ask user to reply approved
+6. get_request_status(requestId) → txHash (completed / signed)
+7. CLI: track-widget --hash <tx> --bond <bond>   # MANDATORY
+8. CLI: positions <wallet>
+9. Confirm success (tx hash + widget recorded + position summary)
 ```
+
+### Tier B (ChatGPT, Claude web/Desktop)
+
+```
+1. get_wallets → from address
+2. Bond discovery: web_request GET if allowlisted, else user pastes bond info or runs list-bonds locally
+3. User runs prepare-buy locally → pastes transactions[] JSON into chat
+4. send_calls(chain="base", mapped calls)
+5. base-mcp-approval.md (link only, user replies approved)
+6. get_request_status → txHash
+7. User runs track-widget and/or finish-purchase locally (give exact commands)
+8. User pastes positions output OR runs positions locally and shares result
+```
+
+---
 
 ## Orchestration: buy via zap
 
+**Tier A only** in-agent (Soul Zap is POST). Tier B: user runs `prepare-zap-buy` locally and pastes `transactions[]`.
+
 ```
-1–2. Same discovery
-3. CLI: prepare-zap-buy (requires shell; Soul Zap is POST)
-4–7. Same as principal buy (single or approve+zap batch; track-widget mandatory)
+1–2. Same discovery as principal buy
+3. CLI: prepare-zap-buy (Tier A) or user-pasted JSON (Tier B)
+4–9. Same post-send_calls as principal buy (track-widget mandatory)
 ```
 
 Native ETH input: `--from-token 0x0000000000000000000000000000000000000000`
+
+---
 
 ## Orchestration: claim
 
 ```
 1. positions <wallet> → billId + bondContract
-2. prepare-redeem OR prepare-batch-redeem
-3. send_calls → get_request_status
+2. prepare-redeem OR prepare-batch-redeem (Tier A) or pasted JSON (Tier B)
+3. send_calls → base-mcp-approval.md → get_request_status
 (No widget POST)
 ```
+
+---
 
 ## Orchestration: transfer bond NFT
 
 ```
 1. Resolve billNnftAddress for the bond (bond list / bond detail metadata)
-2. prepare-transfer --nft <billNnft> ...
-3. send_calls → get_request_status
+2. prepare-transfer --nft <billNnft> …
+3. send_calls → base-mcp-approval.md → get_request_status
 ```
 
 ---
@@ -129,6 +161,7 @@ Native ETH input: `--from-token 0x0000000000000000000000000000000000000000`
 - **minTier**: if bond requires a tier the wallet does not meet, `deposit` may revert — check bond payload before preparing.
 - **Zap** approves SoulZap TokenManager on Base (`0x0B750790dCa8f289fAB5eFd1a48EfAb969e51D16`), not the bond contract.
 - **Fees** are reflected in `trueBillPriceWithFee` / `trueBondPrices` from realtime-api.
+- Call `send_calls` only when the user can approve soon — stale `pending` requests block a clean flow.
 
 ## Limitations
 

@@ -9,13 +9,13 @@ GET https://realtime-api.ape.bond/bonds?chainId=8453&bond=<bondContract>
 
 Returns live bond economics: `trueBillPrice`, `trueBondPrices`, `lpToken`, `earnToken`, `soldOut`, vesting fields, `billVersion`, `minTier`.
 
-**Fallback:** If Base MCP `web_request` rejects this host, use the harness shell:
+**Fallback:** If Base MCP `web_request` rejects this host, use the harness shell (Tier A) or ask the user to run locally (Tier B):
 
 ```bash
-cd <skill-repo>/cli && node dist/cli.js list-bonds
+node <skill-root>/cli/dist/cli.js list-bonds
 ```
 
-Or `curl` the URL and paste JSON into chat.
+Or `curl` the URL and paste JSON into chat. See [host-setup.md](host-setup.md).
 
 ## API v2 (write-side helpers)
 
