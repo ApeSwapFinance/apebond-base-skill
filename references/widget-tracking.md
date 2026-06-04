@@ -26,12 +26,14 @@ Optional query param: `reason` (string).
 
 **Allowed** ways to run widget tracking (after `txHash` from `get_request_status`):
 
-1. `node <skill-root>/cli/dist/cli.js track-widget --hash … --bond …`
-2. `<skill-root>/cli/scripts/track-widget.sh …` (`curl -G …`)
-3. Base MCP `web_request` GET to the full register URL
-4. Explicit shell `curl -G` with query params from [Query parameters](#query-parameters) below
+| Priority | Method | When |
+| --- | --- | --- |
+| 1 | **Harness WebFetch** (Cursor) — GET the full register URL below | Default on Cursor; works when shell `curl` is sandbox-blocked |
+| 2 | `node <skill-root>/cli/dist/cli.js track-widget --hash … --bond …` | Shell has network (`sandbox.json` or `full_network` / `all`) |
+| 3 | `<skill-root>/cli/scripts/track-widget.sh …` | Same as CLI |
+| 4 | Base MCP `web_request` GET | Only after Base allowlists `api.ape.bond` — see [agent-network.md](agent-network.md) |
 
-On **Cursor / Tier A**, the default sandbox can reach this GET endpoint — **no** `full_network` permission is required for widget register unless a retry still fails.
+On **Cursor**, default sandbox **`curl` to `api.ape.bond` often fails** (`403 CONNECT tunnel`). That is normal — use **WebFetch** first, or add hosts via [sandbox.json.example](../sandbox.json.example). See [agent-network.md](agent-network.md).
 
 ---
 
@@ -85,9 +87,15 @@ https://api.ape.bond/bills/widget/register?chainId=8453&transactionHash=0x2ea849
 
 ---
 
-## Tier A — Cursor, Claude Code, Codex (shell)
+## Tier A — Cursor, Claude Code, Codex
 
-**Preferred** (after step 2):
+### Cursor (after step 2)
+
+**Preferred:** WebFetch the register URL (same query string as [Query parameters](#query-parameters)). Treat success as JSON with `chainId`, `transactionHash`, `billContract`, and `createdAt` (or any 2xx).
+
+**If WebFetch fails:** run CLI or script with elevated shell network, or fix [sandbox.json](../sandbox.json.example) / [agent-network.md](agent-network.md).
+
+### Claude Code / Codex (shell, after step 2)
 
 ```bash
 node <skill-root>/cli/dist/cli.js track-widget --hash <txHash> --bond <bondContract>

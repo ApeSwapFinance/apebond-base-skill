@@ -48,19 +48,21 @@ cd ~/.cursor/skills/apebond-base/cli && npm install && npm run build
 
 Default skill dir: `~/.cursor/skills/apebond-base/` (global). Verify: `npx skills ls -g`
 
-### Cursor / Tier A — sandbox and widget register
+### Cursor / Tier A — network (read this)
 
-`prepare-buy`, `track-widget`, and [cli/scripts/track-widget.sh](../cli/scripts/track-widget.sh) call `realtime-api.ape.bond` and `api.ape.bond`. Cursor’s default shell sandbox may block those hosts.
+Cursor agents use **three different network paths** for ApeBond HTTP. See [agent-network.md](agent-network.md).
 
-| Phase | Network in sandbox | Agent action |
-|-------|-------------------|--------------|
-| `prepare-buy` / `list-bonds` | Often blocked | Use `required_permissions: ["full_network"]` or Base MCP `chain_rpc_request` where applicable |
-| **Widget register GET** | Usually OK in default sandbox | After `txHash`: run `track-widget` / `track-widget.sh` (GET `/bills/widget/register`) |
-| **Widget register failed** | Network or API error | **Pause in chat** — ask user to retry or run script locally; do not defer to end of reply |
+| Phase | WebFetch (harness) | Shell `curl` / CLI (sandbox) | Agent action |
+|-------|-------------------|------------------------------|--------------|
+| Bond discovery | Usually **works** | Often **403** | Prefer **WebFetch** `GET realtime-api.ape.bond/bonds?...` or CLI with `full_network` |
+| **Widget register** | Usually **works** | Often **403** | After `txHash`: **WebFetch** register URL first; else CLI/script + network |
+| On-chain reads | N/A | N/A | Prefer Base MCP `chain_rpc_request` |
+
+**Fix shell access:** copy [sandbox.json.example](../sandbox.json.example) to `.cursor/sandbox.json` (project) or `~/.cursor/sandbox.json` (global), or set **Agents → Auto Run → Allow All**. Full steps: [agent-network.md](agent-network.md#fix-cursor-shell-access-sandboxjson).
 
 Never register widget between `send_calls` and confirmed `txHash`.  
-Use **GET** `https://api.ape.bond/bills/widget/register` with query params — not legacy `POST /bills/widget`.  
-If widget register fails, use **inline handoff** (same message thread) — see [widget-tracking.md](widget-tracking.md).
+Use **GET** `https://api.ape.bond/bills/widget/register` — not legacy `POST /bills/widget`.  
+If widget register fails, **inline handoff** — [widget-tracking.md](widget-tracking.md).
 
 **If you accidentally installed as a project skill** (`cli/.agents/skills/…`):
 

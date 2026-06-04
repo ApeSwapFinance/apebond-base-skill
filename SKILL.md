@@ -16,7 +16,7 @@ description: >-
 2. Load [references/tone.md](references/tone.md) rules for the session (short, safety-first).
 3. Load [references/host-setup.md](references/host-setup.md), identify **Tier A** (shell) vs **Tier B** (chat-only), and install the skill CLI if needed.
 4. Before any `send_calls`, load [references/base-mcp-approval.md](references/base-mcp-approval.md).
-5. Before any purchase flow, load [references/widget-tracking.md](references/widget-tracking.md). After a confirmed buy, **GET** `/bills/widget/register` with query params (never legacy POST `/bills/widget`).
+5. Before any purchase flow, load [references/widget-tracking.md](references/widget-tracking.md) and [references/agent-network.md](references/agent-network.md). After a confirmed buy, **GET** `/bills/widget/register` (on Cursor: **WebFetch** first; never legacy POST `/bills/widget`).
 
 ## Onboarding (every session)
 
@@ -67,7 +67,8 @@ Output `transactions[]` maps 1:1 to Base MCP `send_calls` with `chain: "base"`.
 | [references/calldata-encoding.md](references/calldata-encoding.md) | deposit, maxPrice, tiers |
 | [references/chain-base.md](references/chain-base.md) | Base constants |
 | [references/widget-tracking.md](references/widget-tracking.md) | Mandatory `GET /bills/widget/register` |
-| [references/limitations.md](references/limitations.md) | allowlist, POST, harness fallbacks |
+| [references/agent-network.md](references/agent-network.md) | WebFetch vs shell vs Base MCP; Cursor `sandbox.json`; Base allowlist request |
+| [references/limitations.md](references/limitations.md) | allowlist, sandbox, harness fallbacks |
 
 ## Installation (end users)
 

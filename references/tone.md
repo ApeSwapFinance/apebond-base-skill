@@ -8,6 +8,7 @@
 - On Tier A harnesses (Cursor, Claude Code, Codex), also auto-open the approval URL via shell when available.
 - On Tier B (ChatGPT, Claude web), show the link only — no shell `open` command.
 - Do not claim the bond was purchased until `track-widget` (and ideally `positions`) complete — or Tier B user confirms local widget run.
-- Tier A (Cursor): run `track-widget` or [cli/scripts/track-widget.sh](../cli/scripts/track-widget.sh) after `txHash` is known — default sandbox is sufficient for widget register GET.
+- Tier A (Cursor): after `txHash`, register widget via **WebFetch** to the full `/bills/widget/register` URL first; use CLI/script only if WebFetch fails or user has [sandbox.json](../sandbox.json.example) — see [agent-network.md](agent-network.md).
+- Bond discovery on Cursor: prefer **WebFetch** to `realtime-api.ape.bond` over sandbox `curl`.
 - If widget register still fails: **pause mid-flow** — ask user to retry or run the script locally **in chat**, then wait. Do **not** send the full purchase/positions summary first and put widget instructions only at the end.
 - When listing positions, show each bond with a markdown image from `imageUrl` (e.g. `![Bill #<billId>](<imageUrl>)`) plus earn token, claimable payout, and bond contract. If the image fails to load (very new bill), still show the text fields.

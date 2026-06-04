@@ -9,6 +9,8 @@ Custom **Base MCP** skill so users can discover and trade **ApeBond** bonds on *
 
 Host-specific setup and capability tiers: [references/host-setup.md](references/host-setup.md).
 
+**Cursor users:** If bond discovery works but `track-widget.sh` fails with `403`, copy [sandbox.json.example](sandbox.json.example) to `.cursor/sandbox.json` or use WebFetch — [references/agent-network.md](references/agent-network.md).
+
 ## Quick start (skill maintainers)
 
 ```bash
@@ -47,7 +49,8 @@ See [references/example-prompts.md](references/example-prompts.md).
 - **Read**: `GET https://realtime-api.ape.bond/bonds?chainId=8453`
 - **Prepare**: bundled CLI → `{ transactions: [{ to, data, value, chainId }] }`
 - **Execute**: Base MCP `send_calls` with `chain: "base"` → user approves in Base Account ([base-mcp-approval.md](references/base-mcp-approval.md))
-- **Track**: mandatory `GET https://api.ape.bond/bills/widget/register` with `referenceId: "base-mcp"` after confirmed purchases
+- **Track**: mandatory `GET https://api.ape.bond/bills/widget/register` with `referenceId: "base-mcp"` after confirmed purchases (Cursor: WebFetch first)
+- **Network**: [references/agent-network.md](references/agent-network.md) — WebFetch vs sandbox `curl` vs Base MCP allowlist
 
 See [plugins/apebond-base.md](plugins/apebond-base.md) for full orchestration.
 

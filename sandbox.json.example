@@ -1,0 +1,10 @@
+{
+  "networkPolicy": {
+    "default": "deny",
+    "allow": [
+      "api.ape.bond",
+      "realtime-api.ape.bond",
+      "zap-api.ape.bond"
+    ]
+  }
+}

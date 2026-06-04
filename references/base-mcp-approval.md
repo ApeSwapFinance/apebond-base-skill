@@ -83,8 +83,8 @@ After a confirmed **purchase** (`deposit` or zap):
 
 **Only after** `get_request_status` returns `txHash` (not while status is `pending`):
 
-1. **Widget register (required)** — `track-widget` or [cli/scripts/track-widget.sh](../cli/scripts/track-widget.sh). Uses GET `/bills/widget/register` with query params (default sandbox OK on Cursor).  
-   If it fails: **stop here** — ask the user to retry or run the script locally. Do **not** jump to step 2–3 or a final summary yet. See [widget-tracking.md](widget-tracking.md) (“inline handoff”).
+1. **Widget register (required)** — GET `/bills/widget/register` with query params. **Cursor:** WebFetch the full URL first ([widget-tracking.md](widget-tracking.md)). **Else:** `track-widget` or [cli/scripts/track-widget.sh](../cli/scripts/track-widget.sh) with shell network ([agent-network.md](agent-network.md)).  
+   If it fails: **stop here** — retry WebFetch, fix `sandbox.json`, or user runs script locally. Do **not** jump to step 2–3 or a final summary yet. See [widget-tracking.md](widget-tracking.md) (“inline handoff”).
 2. `node <skill-root>/cli/dist/cli.js positions <wallet>` (after widget succeeds)
 3. Or combined: `finish-purchase --hash … --bond … --wallet …` (after widget succeeds)
 

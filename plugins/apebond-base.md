@@ -79,7 +79,7 @@ After a **confirmed** purchase (not claim/transfer), the flow is **incomplete** 
 GET https://api.ape.bond/bills/widget/register?chainId=8453&transactionHash=0x...&billContract=0x...&referenceId=base-mcp
 ```
 
-**Deprecated:** legacy `POST /bills/widget`. **Required:** CLI `track-widget`, `track-widget.sh`, or `curl -G` to the register URL.
+**Deprecated:** legacy `POST /bills/widget`. **Required:** register GET — on Cursor prefer **WebFetch**; else CLI `track-widget`, `track-widget.sh`, or `curl -G` ([agent-network.md](../references/agent-network.md)).
 
 CLI: `track-widget --hash 0x... --bond 0x...` or `finish-purchase --hash … --bond … --wallet …`
 
@@ -93,7 +93,7 @@ Full rules: [references/widget-tracking.md](../references/widget-tracking.md).
 
 ```
 1. get_wallets → from address
-2. list-bonds or GET /bonds?chainId=8453&bond=<bond>
+2. Bond discovery: WebFetch GET /bonds?chainId=8453&bond=<bond> (Cursor) or list-bonds CLI with network
 3. CLI: prepare-buy --bond … --amount … --from … [--with-tiers]
    - V4 bonds: prefer --with-tiers when api.ape.bond is reachable
 4. send_calls(chain="base", calls from transactions[])
@@ -103,7 +103,7 @@ Full rules: [references/widget-tracking.md](../references/widget-tracking.md).
    - Do NOT track-widget / widget curl / finish-purchase yet
 6. get_request_status(requestId) → txHash (completed / signed)
    - If pending or no txHash: STOP — do not widget register
-7. Widget register: track-widget or track-widget.sh (default sandbox OK on Cursor)
+7. Widget register: WebFetch GET register URL (Cursor) or track-widget / track-widget.sh with network
    - If register fails: STOP — inline handoff in chat (retry or user runs script); do NOT send final summary yet
 8. CLI: positions <wallet> (only after step 7 succeeds)
 9. Confirm success (tx hash + widget recorded + position summary)

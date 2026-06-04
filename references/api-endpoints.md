@@ -11,13 +11,13 @@ GET https://realtime-api.ape.bond/utils/bonds
 - **`/bonds`:** live / active bond economics for buying (`trueBillPrice`, `soldOut`, vesting, tiers). Bonds with `hide: true` are excluded by the CLI and should be ignored when agents parse this response.
 - **`/utils/bonds`:** full catalog (SDK bonds list). CLI uses this only to attach `earnToken` symbols to **positions**; discovery is on-chain via Base Bill NFT `0xD8C7fe06E24A2862d78D0F1BF040bA79463d9351` (`allTokensDataOfOwner` + per-bond `claimablePayout`).
 
-**Fallback:** If Base MCP `web_request` rejects this host, use the harness shell (Tier A) or ask the user to run locally (Tier B):
+**Agent access (Cursor):** Prefer **WebFetch** to the URLs above. Default sandbox `curl` often returns `403` for `*.ape.bond` — see [agent-network.md](agent-network.md).
+
+**Fallback:** CLI `list-bonds` with shell network, user-pasted JSON (Tier B), or Base MCP `web_request` once allowlisted:
 
 ```bash
 node <skill-root>/cli/dist/cli.js list-bonds
 ```
-
-Or `curl` the URL and paste JSON into chat. See [host-setup.md](host-setup.md).
 
 ## API v2 (write-side helpers)
 
@@ -28,7 +28,7 @@ Or `curl` the URL and paste JSON into chat. See [host-setup.md](host-setup.md).
 
 Base URL: `https://api.ape.bond`
 
-**Deprecated:** legacy `POST /bills/widget`. Record purchases via CLI `track-widget`, `track-widget.sh`, `curl -G` to register URL, or Base MCP `web_request` GET.
+**Deprecated:** legacy `POST /bills/widget`. Register via **WebFetch** (Cursor), CLI `track-widget`, `track-widget.sh`, or `curl -G` — see [widget-tracking.md](widget-tracking.md) and [agent-network.md](agent-network.md).
 
 ### Bill NFT image (positions display)
 
