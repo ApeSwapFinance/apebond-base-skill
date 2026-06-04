@@ -102,8 +102,9 @@ Full rules: [references/widget-tracking.md](../references/widget-tracking.md).
    - Do NOT track-widget / widget curl / finish-purchase yet
 6. get_request_status(requestId) → txHash (completed / signed)
    - If pending or no txHash: STOP — do not widget POST
-7. CLI: track-widget --hash <tx> --bond <bond>   # MANDATORY (after step 6 only; full network if sandbox blocks POST)
-8. CLI: positions <wallet>
+7. Widget POST: track-widget or track-widget.sh — **first shell call uses full_network** (Cursor)
+   - If POST fails: STOP — inline handoff in chat (approve retry or user runs script); do NOT send final summary yet
+8. CLI: positions <wallet> (only after step 7 succeeds)
 9. Confirm success (tx hash + widget recorded + position summary)
 ```
 

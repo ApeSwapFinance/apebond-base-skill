@@ -83,12 +83,12 @@ After a confirmed **purchase** (`deposit` or zap):
 
 **Only after** `get_request_status` returns `txHash` (not while status is `pending`):
 
-1. `node <skill-root>/cli/dist/cli.js track-widget --hash <txHash> --bond <bondContract>`  
-   On sandbox DNS/tunnel errors (Cursor): retry with shell `required_permissions: ["full_network"]` or use [cli/scripts/track-widget.sh](../cli/scripts/track-widget.sh) the same way.
-2. `node <skill-root>/cli/dist/cli.js positions <wallet>`
-3. Or combined: `finish-purchase --hash … --bond … --wallet …`
+1. **Widget POST** — `track-widget` or [cli/scripts/track-widget.sh](../cli/scripts/track-widget.sh) with **`required_permissions: ["full_network"]` first** (Cursor).  
+   If it fails: **stop here** — inline handoff in chat (ask user to approve full network or run script locally). Do **not** jump to step 2–3 or a final summary yet. See [widget-tracking.md](widget-tracking.md) (“inline handoff”).
+2. `node <skill-root>/cli/dist/cli.js positions <wallet>` (after widget succeeds)
+3. Or combined: `finish-purchase --hash … --bond … --wallet …` (after widget succeeds)
 
-See [widget-tracking.md](widget-tracking.md). Retry widget POST once on failure; purchase may still be on-chain.
+Purchase may still be on-chain if widget fails — say that **when pausing**, not only in a footnote after positions.
 
 ### Tier B (chat-only)
 

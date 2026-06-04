@@ -55,9 +55,11 @@ Default skill dir: `~/.cursor/skills/apebond-base/` (global). Verify: `npx skill
 | Phase | Network in sandbox | Agent action |
 |-------|-------------------|--------------|
 | `prepare-buy` / `list-bonds` | Often blocked | Use `required_permissions: ["full_network"]` or Base MCP `chain_rpc_request` where applicable |
-| **Widget POST** | Almost always blocked | Run **only after** user **approved** + `get_request_status` → `txHash`; then `track-widget` or `track-widget.sh` with `full_network` / `all` |
+| **Widget POST** | Blocked in default sandbox | After `txHash`: run `track-widget` / `track-widget.sh` with **`required_permissions: ["full_network"]` on the first try** |
+| **Widget POST failed** | User sees ENOTFOUND / 403 | **Pause in chat** — ask user to approve full-network retry or run script locally; do not defer to end of reply |
 
-Never POST `/bills/widget` between `send_calls` and confirmed `txHash`. See [widget-tracking.md](widget-tracking.md).
+Never POST `/bills/widget` between `send_calls` and confirmed `txHash`.  
+If widget POST fails, use **inline handoff** (same message thread) — see [widget-tracking.md](widget-tracking.md).
 
 **If you accidentally installed as a project skill** (`cli/.agents/skills/…`):
 

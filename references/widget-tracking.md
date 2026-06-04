@@ -14,8 +14,9 @@ Do **not** run widget tracking until **all** of steps 1–2 are complete.
 |------|----------|-----------|
 | 1 | User replied **approved** in Base Account (or agent polled `get_request_status` with user consent) | — |
 | 2 | `get_request_status(requestId)` → status `signed` or `completed` **and** `txHash` present | `track-widget`, `finish-purchase`, widget `curl`, `web_request` POST to `/bills/widget` |
-| 3 | Widget POST using **`txHash` from step 2 only** (never `requestId`, never a guessed hash) | POST before step 2 |
-| 4 | `positions` or `finish-purchase` | Tell the user the purchase flow succeeded if step 3 failed without Tier B handoff |
+| 3 | Widget POST using **`txHash` from step 2 only** (never `requestId`, never a guessed hash); Cursor: **`full_network` on first try** | POST before step 2; default sandbox only |
+| 4 | `positions` or `finish-purchase` | Final purchase summary **before** step 3 succeeds |
+| 5 | Final success message | Widget failure only as a footnote after positions summary |
 
 **Never** call `track-widget`, `finish-purchase`, or the shell script below:
 
@@ -57,28 +58,55 @@ Optional field: `reason` (string).
 
 ## Tier A — Cursor, Claude Code, Codex (shell)
 
-**Preferred** (after step 2):
+### Cursor: run widget POST outside sandbox on the first try
+
+The default agent shell **cannot** reach `api.ape.bond` (`ENOTFOUND`, `CONNECT tunnel failed`, `403`). That is a **Cursor harness limitation**, not a bad transaction.
+
+**On step 3, always** invoke the shell with network from the start:
+
+- Cursor: `required_permissions: ["full_network"]` on the tool call
+- If it still fails: retry once with `required_permissions: ["all"]`
+
+Do **not** run `track-widget` / `track-widget.sh` in the default sandbox first and only mention network at the end of the chat.
+
+**Preferred** (after step 2, **with full network**):
 
 ```bash
 node <skill-root>/cli/dist/cli.js track-widget --hash <txHash> --bond <bondContract>
 ```
 
-**Combined** with positions:
+Or:
+
+```bash
+<skill-root>/cli/scripts/track-widget.sh <txHash> <bondContract>
+```
+
+**Combined** with positions (after widget succeeds):
 
 ```bash
 node <skill-root>/cli/dist/cli.js finish-purchase \
   --hash <txHash> --bond <bondContract> --wallet <wallet>
 ```
 
-### Sandbox / network (Cursor and similar harnesses)
+### If widget POST still fails (inline handoff — do not skip ahead)
 
-Widget POST reaches `api.ape.bond` over the public internet. The default agent shell sandbox often blocks it (`ENOTFOUND`, `CONNECT tunnel failed`, `403`).
+**Stop the flow in the same turn.** Do **not** yet send the final purchase summary or positions table.
 
-When `track-widget` or `curl` fails with DNS or tunnel errors:
+Tell the user immediately, in chat:
 
-1. **Retry once** with shell **outside the sandbox** — in Cursor, pass `required_permissions: ["full_network"]`; if still blocked, use `["all"]`.
-2. Do **not** retry before step 2 (approval + `txHash`).
-3. Prefer the canonical script below over ad-hoc `curl` copy/paste.
+1. On-chain buy **is** confirmed (`txHash` + BaseScan link).
+2. Widget analytics POST failed because this environment blocks outbound HTTP to `api.ape.bond`.
+3. Ask them to choose **one** path **now** (still in this thread):
+   - **A)** Approve you to re-run the same command with full network / outside sandbox (Cursor permission prompt).
+   - **B)** Run locally and paste the result:
+
+```bash
+<skill-root>/cli/scripts/track-widget.sh <txHash> <bondContract>
+```
+
+4. **Wait** for success (`{"ok":true,...}` from CLI or empty/2xx from curl) or user confirmation before step 4 (`positions`) and before saying the purchase flow is complete.
+
+**Forbidden pattern:** Returning a full “Purchase confirmed” + positions summary and only adding “widget tracking failed, run this curl at the end” as a footnote.
 
 See [host-setup.md](host-setup.md) (Tier A sandbox).
 
@@ -120,7 +148,8 @@ Base MCP `web_request` usually **cannot** POST to `api.ape.bond`. After the agen
 
 If the POST fails **after** step 2:
 
-- Retry `track-widget` or `track-widget.sh` **once** with full network (Tier A).
-- The on-chain purchase may still have succeeded; say so clearly if widget tracking still fails after retry.
+1. Retry **once** in the **same turn** with `full_network` / `all` (Tier A).
+2. If still failing → **inline handoff** (section above); pause until resolved.
+3. On-chain purchase may still have succeeded — state that **when you pause**, not only in a closing footnote.
 
-**Do not** tell the user the purchase succeeded until widget tracking succeeds (or Tier B user confirms a local run).
+**Do not** tell the user the purchase **flow** is complete until widget tracking succeeds (or Tier B user confirms a local run in chat).
